@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,6 +23,7 @@ import java.util.List;
 @Slf4j
 @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 @DataMongoTest
+@ActiveProfiles("test")
 @AutoConfigureDataMongo
 @ExtendWith(SpringExtension.class)
 public class ItemRepositoryTest {
