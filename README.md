@@ -9,3 +9,4 @@
 - **Backpressure**: contra pressão, ou seja, quando o publicador gera muitos eventos alem da capacidade efetiva do assinante consumir, evita que ocorra alguma falha por ausência de recursos.
 - **Mono**: emite 0 ou 1 evento.
 - **Flux**: emite 0 ou N evento.
+- **Processor**: Representa uma etapa de processamento, que é tanto um Subscriber quanto um Publisher que aceita as normas de ambos.

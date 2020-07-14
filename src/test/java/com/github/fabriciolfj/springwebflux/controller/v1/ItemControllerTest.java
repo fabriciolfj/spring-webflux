@@ -15,9 +15,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest
@@ -57,5 +61,99 @@ public class ItemControllerTest {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Item.class)
                 .hasSize(3);
+    }
+
+    @Test
+    public void getAllItems_approach2() {
+        webTestClient.get().uri("/v1/items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Item.class)
+                .hasSize(3)
+                .consumeWith(response -> {
+                    List<Item> items = response.getResponseBody();
+                    items.stream().forEach(item -> assertTrue(item.getId() != null));
+                });
+    }
+
+    @Test
+    public void getAllItems_approach3() {
+        Flux<Item> items = webTestClient.get().uri("/v1/items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .returnResult(Item.class)
+                .getResponseBody();
+
+        StepVerifier.create(items.log("Value: "))
+                .expectSubscription()
+                .expectNextCount(3);
+    }
+
+    @Test
+    public void getOneItem() {
+        webTestClient.get().uri("/v1/items/{id}", "ABC")
+                .exchange()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price", 149.99);
+    }
+
+    @Test
+    public void getOneItem_notfound() {
+        webTestClient.get().uri("/v1/items/{id}", "ABC2")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void createItem() {
+        var item = new Item(null, "Iphone x", 999.99);
+        webTestClient.post().uri("/v1/items")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.justOrEmpty(item), Item.class)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.id").isNotEmpty()
+                .jsonPath("$.description").isEqualTo("Iphone x")
+                .jsonPath("$.price").isEqualTo(999.99);
+    }
+
+    @Test
+    public void deleteItem() {
+        webTestClient.delete().uri("/v1/items/{id}", "ABC")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody(Void.class);
+    }
+
+    @Test
+    public void update() {
+        var newPrice = 179.88;
+        var item = new Item(null, "Apple watch", newPrice);
+
+        webTestClient.put().uri("/v1/items/{id}", "ABC")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.justOrEmpty(item), Item.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price").isEqualTo(newPrice)
+                .jsonPath("$.description").isEqualTo(item.getDescription());
+    }
+
+    @Test
+    public void update_error() {
+        var newPrice = 179.88;
+        var item = new Item(null, "Apple watch", newPrice);
+
+        webTestClient.put().uri("/v1/items/{id}", "ABC2")
+                .body(Mono.justOrEmpty(item), Item.class)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }
