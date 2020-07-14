@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  mongodb:
+    image: mongo:3.6.9
+    mem_limit: 350m
+    ports:
+      - "27017:27017"
+    command: mongod --smallfiles
+    healthcheck:
+      test: "mongo --eval 'db.stats().ok'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
