@@ -156,4 +156,70 @@ public class ItemControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
+
+    @Test
+    public void getOneItemV2() {
+        webTestClient.get().uri("/v2/items/{id}", "ABC")
+                .exchange()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price", 149.99);
+    }
+
+    @Test
+    public void getOneItem_notfoundV2() {
+        webTestClient.get().uri("/v2/items/{id}", "ABC2")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void createItemV2() {
+        var item = new Item(null, "Iphone x", 999.99);
+        webTestClient.post().uri("/v2/items")
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.justOrEmpty(item), Item.class)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.id").isNotEmpty()
+                .jsonPath("$.description").isEqualTo("Iphone x")
+                .jsonPath("$.price").isEqualTo(999.99);
+    }
+
+    @Test
+    public void deleteItemV2() {
+        webTestClient.delete().uri("/v2/items/{id}", "ABC")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class);
+    }
+
+    @Test
+    public void updateV2() {
+        var newPrice = 179.88;
+        var item = new Item(null, "Apple watch", newPrice);
+
+        webTestClient.put().uri("/v2/items/{id}", "ABC")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.justOrEmpty(item), Item.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price").isEqualTo(newPrice)
+                .jsonPath("$.description").isEqualTo(item.getDescription());
+    }
+
+    @Test
+    public void update_errorV2() {
+        var newPrice = 179.88;
+        var item = new Item(null, "Apple watch", newPrice);
+
+        webTestClient.put().uri("/v2/items/{id}", "ABC2")
+                .body(Mono.justOrEmpty(item), Item.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
 }

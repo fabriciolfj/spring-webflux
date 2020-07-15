@@ -21,7 +21,7 @@ public class InitializerData implements CommandLineRunner {
     private ItemRepository itemRepository;
 
     private List<Item> itemList = Arrays.asList(
-            new Item(null, "Samsung Tv", 400.00),
+            new Item("ABC", "Samsung Tv", 400.00),
             new Item(null, "Apple watch", 420.00),
             new Item(null, "beats headphones", 149.99)
     );
