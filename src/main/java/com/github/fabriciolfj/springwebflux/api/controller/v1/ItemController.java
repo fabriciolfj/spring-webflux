@@ -17,6 +17,12 @@ public class ItemController {
     @Autowired
     private ItemService itemService;
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(final RuntimeException ex) {
+        log.error("Exception caught in handleRuntimeException: {}", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
     @GetMapping("/v1/items")
     public Flux<Item> findAll() {
         return itemService.findAll();
@@ -46,5 +52,11 @@ public class ItemController {
         return itemService.update(id, item)
                 .map(value -> ResponseEntity.ok().body(item))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
+    }
+
+    @GetMapping("/v1/error")
+    public Flux<Item> getAllItemsError() {
+        return itemService.findAll()
+                .concatWith(Mono.error(new RuntimeException("Fail ocurred.")));
     }
 }
