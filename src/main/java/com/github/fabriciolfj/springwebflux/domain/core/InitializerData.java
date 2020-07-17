@@ -28,6 +28,9 @@ public class InitializerData implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        initalDataSetup();
+    }
+    private void initalDataSetup() {
         itemRepository.deleteAll()
                 .thenMany(Flux.fromIterable(itemList))
                 .flatMap(itemRepository::save)

@@ -24,4 +24,10 @@ public class ItemRouterConfig {
                 .andRoute(DELETE("/v2/items/{id}").and(accept(MediaType.APPLICATION_JSON)), handlerFunction::delete)
                 .andRoute(PUT("/v2/items/{id}").and(accept(MediaType.APPLICATION_JSON)), handlerFunction::updateItem);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> routeError(final ItemHandlerFunction handlerFunction) {
+        return RouterFunctions.route(
+                GET("/v2/error").and(accept(MediaType.APPLICATION_JSON)), handlerFunction::error);
+    }
 }

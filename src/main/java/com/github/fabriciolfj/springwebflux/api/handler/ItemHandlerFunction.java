@@ -55,4 +55,8 @@ public class ItemHandlerFunction {
                 .switchIfEmpty(ServerResponse.badRequest().body(BodyInserters.fromValue("Product not found: " + serverRequest.pathVariable("id"))))
                 .onErrorResume(e -> ServerResponse.badRequest().body(BodyInserters.fromValue(e.getMessage())));
     }
+
+    public Mono<ServerResponse> error(ServerRequest serverRequest) {
+        throw new RuntimeException("Error route");
+    }
 }

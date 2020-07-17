@@ -17,12 +17,6 @@ public class ItemController {
     @Autowired
     private ItemService itemService;
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(final RuntimeException ex) {
-        log.error("Exception caught in handleRuntimeException: {}", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-    }
-
     @GetMapping("/v1/items")
     public Flux<Item> findAll() {
         return itemService.findAll();

@@ -222,4 +222,20 @@ public class ItemControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
+
+    @Test
+    public void error() {
+        webTestClient.get().uri("/v1/error")
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectBody(String.class).isEqualTo("Fail ocurred.");
+    }
+
+    @Test
+    public void errorV2() {
+        webTestClient.get().uri("/v2/error")
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectBody(String.class).isEqualTo("Error route");
+    }
 }
