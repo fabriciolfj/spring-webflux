@@ -8,6 +8,13 @@ spring:
     host: localhost
     port: 27017
     database: local
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: a6d55406f5b2c1fed233
+            client-secret: 7342528aceeca7306b5773bf9cd9b7362c2d4c0b
 
 ---
 spring:
