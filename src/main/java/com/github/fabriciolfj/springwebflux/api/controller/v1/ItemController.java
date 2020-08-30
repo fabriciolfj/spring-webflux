@@ -1,6 +1,8 @@
 package com.github.fabriciolfj.springwebflux.api.controller.v1;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fabriciolfj.springwebflux.domain.document.Item;
+import com.github.fabriciolfj.springwebflux.domain.message.Producer;
 import com.github.fabriciolfj.springwebflux.domain.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ public class ItemController {
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private Producer producer;
+
     @GetMapping("/v1/items")
     public Flux<Item> findAll() {
         return itemService.findAll();
@@ -25,7 +30,14 @@ public class ItemController {
     @GetMapping("/v1/items/{id}")
     public Mono<ResponseEntity<Item>> findById(@PathVariable("id") final String id) {
         return itemService.findById(id)
-                .map(item -> ResponseEntity.ok().body(item))
+                .map(item -> {
+                    try {
+                        producer.send(item);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return ResponseEntity.ok().body(item);
+                })
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
